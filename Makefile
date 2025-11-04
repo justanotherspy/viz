@@ -1,4 +1,4 @@
-.PHONY: help install dev run clean test format lint sync
+.PHONY: help install dev run clean test format lint sync check-deps
 
 help:
 	@echo "Available commands:"
@@ -11,7 +11,23 @@ help:
 	@echo "  make lint       - Lint code with ruff"
 	@echo "  make sync       - Sync dependencies with uv"
 
-install:
+check-deps:
+	@echo "Checking system dependencies..."
+	@if ! pkg-config --exists portaudio-2.0 2>/dev/null; then \
+		echo ""; \
+		echo "❌ PortAudio is not installed!"; \
+		echo ""; \
+		echo "PyAudio requires PortAudio to build. Please install it first:"; \
+		echo ""; \
+		echo "  brew install portaudio"; \
+		echo ""; \
+		echo "After installation, run 'make install' again."; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "✓ PortAudio is installed"
+
+install: check-deps
 	uv sync
 
 dev:
