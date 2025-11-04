@@ -1,8 +1,42 @@
 # Viz - 3D Audio Visualizer
 
+## Initialization Process
+
+This project was initialized using UV package manager with a complete Python project structure for a 3D audio visualizer that captures audio from BlackHole on macOS.
+
+### Initial Setup (Commit 79d6134)
+
+The initialization process created:
+
+**Project Infrastructure:**
+- UV-based Python project with pyproject.toml configuration
+- Core dependencies: pygame, numpy, pyaudio, scipy
+- Modular architecture with audio and graphics modules
+- Makefile for common development commands
+- Comprehensive documentation (README.md and CLAUDE.md)
+- Python 3.11+ environment with .python-version file
+
+**Features Implemented:**
+- Audio capture module for BlackHole device detection
+- FFT-based frequency analyzer with logarithmic binning
+- Isometric 3D-to-2D projection system
+- Pygame renderer with time-history waterfall visualization
+- Configuration system with pale blue styling
+
+**File Structure Created:**
+- 16 files total with 792+ lines of code
+- Complete module structure with __init__.py files
+- py.typed marker for type checking support
+- Dedicated modules for audio, graphics, and utilities
+
 ## Project Overview
 
 Viz is a Python-based 3D audio visualizer designed for macOS that captures audio output from a BlackHole multi-output channel setup and displays a real-time frequency spectrum visualization.
+
+The visualizer displays frequency spectrum in 3D space with:
+- **X-axis**: frequency bands
+- **Y-axis**: amplitude/volume
+- **Z-axis**: time progression (waterfall effect)
 
 ## Architecture
 
@@ -60,7 +94,7 @@ viz/
 ├── pyproject.toml
 ├── Makefile
 ├── README.md
-└── claude.md
+└── CLAUDE.md                    # This file - Technical documentation
 ```
 
 ## Development Commands
