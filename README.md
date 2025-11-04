@@ -18,22 +18,27 @@ As music plays, the current frequency spectrum appears at the front, and older d
 
 ## Features
 
-- Real-time audio capture from BlackHole output
-- 3D isometric visualization with pale blue medium-thickness lines
-- Smooth frequency spectrum analysis using FFT
-- Optimized rendering for 30-60 FPS performance
-- Easy configuration and customization
+- **Real-time audio capture** from BlackHole output
+- **3D isometric visualization** with pale blue medium-thickness lines and waterfall effect
+- **Smooth frequency spectrum analysis** using FFT with logarithmic frequency binning
+- **Demo mode** with generated audio when no audio device is available
+- **Custom application icon** with frequency spectrum design
+- **Live UI overlay** showing FPS and buffer status
+- **Optimized rendering** for 60 FPS performance with hardware acceleration
+- **Graceful error handling** with automatic fallback modes
 
 ## Prerequisites
 
-### System Dependencies
+### System Dependencies (macOS only)
 
-1. **Install PortAudio** (required for PyAudio)
-   ```bash
-   brew install portaudio
-   ```
+**For live audio capture**, install PortAudio:
+```bash
+brew install portaudio
+```
 
-### macOS Audio Setup
+**Note**: The visualizer will run in demo mode without PortAudio/PyAudio, generating test audio for visualization testing.
+
+### macOS Audio Setup (for live audio)
 
 1. **Install BlackHole**
    ```bash
@@ -66,11 +71,20 @@ As music plays, the current frequency spectrum appears at the front, and older d
    ```
 
 3. **Install dependencies**
+
+   For demo mode (no audio required):
    ```bash
    make install
    ```
 
+   For live audio mode (requires PortAudio installed first):
+   ```bash
+   uv pip install --extra audio .
+   ```
+
 ## Usage
+
+### Running the Visualizer
 
 Run the visualizer:
 ```bash
@@ -81,6 +95,22 @@ Or directly with UV:
 ```bash
 uv run viz
 ```
+
+### Controls
+
+- **Close window** or **ESC key**: Exit the application
+- **Ctrl+C** in terminal: Gracefully shutdown
+
+### Modes
+
+**Live Audio Mode** (when PyAudio is installed and BlackHole is configured):
+- Captures real-time audio from your system output
+- Displays actual frequency spectrum of playing audio
+
+**Demo Mode** (automatic fallback):
+- Runs when PyAudio is not installed or no audio device is found
+- Generates test audio (mixed sine waves) for visualization
+- Perfect for testing and development without audio hardware
 
 ## Development
 
@@ -100,13 +130,20 @@ make test        # Run tests
 
 ```
 viz/
-├── src/viz/          # Main package
-│   ├── main.py       # Entry point
-│   ├── audio/        # Audio capture and analysis
-│   ├── graphics/     # Rendering and visualization
-│   └── utils/        # Configuration and utilities
-├── pyproject.toml    # Project dependencies
-├── Makefile          # Development commands
+├── src/viz/
+│   ├── main.py              # Entry point and Visualizer class
+│   ├── audio/
+│   │   ├── capture.py       # Audio capture (PyAudio wrapper)
+│   │   └── analyzer.py      # FFT frequency analysis
+│   ├── graphics/
+│   │   ├── renderer.py      # Pygame rendering engine
+│   │   └── isometric.py     # 3D to 2D projection
+│   └── utils/
+│       ├── config.py        # Configuration settings
+│       └── icon.py          # Application icon generator
+├── pyproject.toml           # Project dependencies
+├── Makefile                 # Development commands
+├── .gitignore              # Git ignore patterns
 └── README.md
 ```
 
@@ -123,30 +160,54 @@ Key settings can be adjusted in `src/viz/utils/config.py`:
 
 ## Technical Details
 
-- **Audio Processing**: Uses PyAudio for audio capture and NumPy FFT for frequency analysis
-- **Graphics**: Pygame for rendering with isometric 3D-to-2D projection
-- **Performance**: Optimized with circular buffers and efficient rendering pipeline
+### Audio Pipeline
+- **Capture**: PyAudio captures audio chunks from BlackHole device (optional)
+- **Analysis**: NumPy FFT with Hann windowing function
+- **Frequency Mapping**: Logarithmic binning from 20Hz to 20kHz
+- **Smoothing**: Exponential moving average to reduce jitter
+- **Demo Mode**: Generates mixed sine waves with varying frequencies
+
+### Graphics Pipeline
+- **Window**: 1280x720 pygame window with custom icon
+- **Projection**: Isometric 3D-to-2D transformation
+- **Rendering**: Hardware-accelerated double-buffered drawing
+- **Visualization**: 64 frequency bands × 80 time slices waterfall
+- **Colors**: Pale blue (#ADD8E6) lines with alpha fade for depth
+- **Performance**: Circular buffer with VSync for smooth 60 FPS
+
+### Architecture
+- **Visualizer Class**: Main application lifecycle manager
+- **Event Loop**: Handles window events, audio processing, and rendering
+- **Resource Management**: Proper initialization and cleanup of all subsystems
+- **Error Handling**: Graceful degradation with informative error messages
 
 ## Troubleshooting
 
 **Installation fails with "portaudio.h file not found"**
-- Install PortAudio using Homebrew: `brew install portaudio`
-- If you've just installed PortAudio, you may need to set environment variables:
+- This is expected if you want to run in demo mode only
+- For live audio, install PortAudio first: `brew install portaudio`
+- If you've just installed PortAudio, set environment variables:
   ```bash
   export CFLAGS="-I/opt/homebrew/include"
   export LDFLAGS="-L/opt/homebrew/lib"
+  uv pip install --extra audio .
   ```
-  Then run `make install` again
 
-**No audio input detected**
-- Ensure BlackHole is installed and selected in Audio MIDI Setup
-- Check that audio is playing through the Multi-Output Device
-- Verify the application has microphone permissions (System Preferences > Security & Privacy)
+**Application runs in demo mode instead of live audio**
+- Check that PyAudio is installed: `uv pip install --extra audio .`
+- Ensure BlackHole is installed and configured in Audio MIDI Setup
+- Verify audio is playing through the Multi-Output Device
+- Check application has microphone permissions (System Preferences > Security & Privacy)
+
+**No window appears**
+- The application requires a display - cannot run headless
+- Check that pygame is properly installed
+- Look for error messages in the terminal output
 
 **Low frame rate**
-- Reduce `TIME_HISTORY_LENGTH` in configuration
+- Reduce `TIME_HISTORY_LENGTH` in `src/viz/utils/config.py`
 - Decrease `NUM_FREQUENCY_BANDS`
-- Lower the window resolution
+- Try disabling VSync: set `VSYNC = False` in config
 
 ## License
 

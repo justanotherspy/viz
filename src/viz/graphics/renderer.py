@@ -34,6 +34,9 @@ class Renderer:
         # Font for debug info
         self.font = pygame.font.Font(None, 24)
 
+        # Clock for FPS tracking
+        self.clock = pygame.time.Clock()
+
     def add_spectrum(self, spectrum):
         """
         Add a new spectrum to the history buffer.
@@ -57,6 +60,9 @@ class Renderer:
 
         # Update display
         pygame.display.flip()
+
+        # Tick clock for FPS tracking
+        self.clock.tick()
 
     def _draw_spectrum_lines(self):
         """Draw the 3D spectrum visualization."""
@@ -108,15 +114,15 @@ class Renderer:
     def _draw_ui(self):
         """Draw UI elements like FPS counter."""
         # FPS counter
-        fps = int(pygame.time.Clock().get_fps())
-        fps_text = self.font.render(f"FPS: {fps}", True, (100, 100, 100))
+        fps = int(self.clock.get_fps())
+        fps_text = self.font.render(f"FPS: {fps}", True, (150, 150, 150))
         self.screen.blit(fps_text, (10, 10))
 
         # Buffer status
         buffer_text = self.font.render(
             f"Buffer: {len(self.history)}/{config.TIME_HISTORY_LENGTH}",
             True,
-            (100, 100, 100),
+            (150, 150, 150),
         )
         self.screen.blit(buffer_text, (10, 35))
 

@@ -1,9 +1,16 @@
 """
 Audio capture module for capturing audio from BlackHole device.
 """
-import pyaudio
 import numpy as np
 from ..utils import config
+
+try:
+    import pyaudio
+
+    PYAUDIO_AVAILABLE = True
+except ImportError:
+    PYAUDIO_AVAILABLE = False
+    pyaudio = None
 
 
 class AudioCapture:
@@ -11,6 +18,11 @@ class AudioCapture:
 
     def __init__(self):
         """Initialize the audio capture system."""
+        if not PYAUDIO_AVAILABLE:
+            raise RuntimeError(
+                "PyAudio is not installed. Install with: uv pip install pyaudio"
+            )
+
         self.pa = pyaudio.PyAudio()
         self.stream = None
         self.device_index = self._find_blackhole_device()
