@@ -26,6 +26,13 @@ As music plays, the current frequency spectrum appears at the front, and older d
 
 ## Prerequisites
 
+### System Dependencies
+
+1. **Install PortAudio** (required for PyAudio)
+   ```bash
+   brew install portaudio
+   ```
+
 ### macOS Audio Setup
 
 1. **Install BlackHole**
@@ -121,6 +128,15 @@ Key settings can be adjusted in `src/viz/utils/config.py`:
 - **Performance**: Optimized with circular buffers and efficient rendering pipeline
 
 ## Troubleshooting
+
+**Installation fails with "portaudio.h file not found"**
+- Install PortAudio using Homebrew: `brew install portaudio`
+- If you've just installed PortAudio, you may need to set environment variables:
+  ```bash
+  export CFLAGS="-I/opt/homebrew/include"
+  export LDFLAGS="-L/opt/homebrew/lib"
+  ```
+  Then run `make install` again
 
 **No audio input detected**
 - Ensure BlackHole is installed and selected in Audio MIDI Setup
